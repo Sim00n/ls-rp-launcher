@@ -12,11 +12,11 @@
 class WebFiles: public QObject {
     QDir mDir;
     QFile mFile;
-    QString homeDir;
-    QString appDir;
-    QString appFile;
 
     public:
+        QString homeDir;
+        QString appDir;
+        QString appFile;
         WebFiles();
         void settings();
         void checkStructure();
