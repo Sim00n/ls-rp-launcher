@@ -19,7 +19,7 @@ void RemoteFiles::parseChecksum()
     QByteArray newData = NetRepl->read(2048);
 
     QString temp = QString(newData);
-    qDebug() << temp;
+    qDebug() << "Remote hash: " << temp << "\n";
 
     NetRepl->deleteLater();
 
@@ -35,6 +35,7 @@ void RemoteFiles::compareLocalChecksum() {
     QStringListIterator itter(sums);
     while (itter.hasNext()) {
         QStringList remoteFile = itter.next().split("|");
+        QString remoteMD5 = remoteFile.at(0).toLocal8Bit().constData();
 
         bool flag = false;
 
@@ -45,13 +46,11 @@ void RemoteFiles::compareLocalChecksum() {
             QFile file(filePath);
             if (file.open(QIODevice::ReadOnly)) {
                 hash.addData(file.readAll());
-                QString md5 = QString(hash.result().toHex());
+                QString localMD5 = hash.result().toHex();
+                hash.reset();
 
-                qDebug() << md5;
-
-                if(md5 == remoteFile.at(0).toLocal8Bit().constData()) {
+                if(localMD5 == remoteMD5) {
                     flag = true;
-                    qDebug() << "match";
                 }
             }
         }
@@ -60,7 +59,11 @@ void RemoteFiles::compareLocalChecksum() {
         }
     }
 
-    downloadFiles();
+    if(downloadList.length() > 0) {
+        downloadFiles();
+    } else {
+        qDebug() << "All files are current.";
+    }
 }
 
 void RemoteFiles::downloadFiles() {
