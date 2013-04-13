@@ -22,17 +22,15 @@ void WebFiles::checkStructure() {
         qDebug() << "Creating " + homeDir + appDir + appFile;
         QFile textFile(homeDir + appDir + appFile);
         textFile.open(QIODevice::WriteOnly);
-        createSettings(&textFile);
+
+        QTextStream out(&textFile);
+        out << "a=test";
+        out << "b=124";
+        out << "c=Sim00n";
+        out << "d=52";
+
         textFile.close();
     }
-}
-
-void WebFiles::createSettings(QFile textFile) {
-    QTextStream out(&textFile);
-    out << "a=test";
-    out << "b=124";
-    out << "c=Sim00n";
-    out << "d=52";
 }
 
 void WebFiles::loadConfig() {

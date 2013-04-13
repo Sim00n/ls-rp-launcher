@@ -7,9 +7,9 @@
 #include <QFile>
 #include <QTextStream>
 #include <QStringRef>
+#include <QTextStream>
 
-class WebFiles: public QObject
-{
+class WebFiles: public QObject {
     QDir mDir;
     QFile mFile;
     QString homeDir;
@@ -20,7 +20,6 @@ class WebFiles: public QObject
         WebFiles();
         void settings();
         void checkStructure();
-        void createSettings(QFile textFile);
         void loadConfig();
 };
 

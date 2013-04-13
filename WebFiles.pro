@@ -7,6 +7,7 @@
 QT       += core
 
 QT       -= gui
+QT       += network
 
 TARGET = WebFiles
 CONFIG   += console
@@ -16,7 +17,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    webfiles.cpp
+    webfiles.cpp \
+    remotefiles.cpp
 
 HEADERS += \
-    webfiles.h
+    webfiles.h \
+    remotefiles.h
