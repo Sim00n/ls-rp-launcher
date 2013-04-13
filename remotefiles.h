@@ -21,6 +21,7 @@ class RemoteFiles: public QObject {
 
     QNetworkAccessManager NetAccMan;
     QNetworkReply *NetRepl;
+    QStringList downloadList;
 
     QString homeDir;
     QString appDir;
@@ -30,11 +31,12 @@ class RemoteFiles: public QObject {
     public:
         RemoteFiles(QString homeDir, QString appDir, QString appFile);
         void getRemoteChecksum();
-        void compareLocalChecksum(QString checksum);
-        void downloadFiles(QStringList downloadList);
+        void compareLocalChecksum();
+        void downloadFiles();
 
     public slots:
         void parseChecksum();
+        void saveRemoteFile();
 
 };
 

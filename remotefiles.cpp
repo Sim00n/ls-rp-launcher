@@ -16,9 +16,6 @@ void RemoteFiles::getRemoteChecksum() {
 
 void RemoteFiles::parseChecksum()
 {
-    //qDebug() << (QString("isFinished:").append(QString::number(NetRepl->isFinished())));
-    //qDebug() << (QString("error:").append(QString::number(NetRepl->error())));
-
     QByteArray newData = NetRepl->read(2048);
 
     QString temp = QString(newData);
@@ -28,13 +25,12 @@ void RemoteFiles::parseChecksum()
 
     sums = temp.split(";");
 
-    compareLocalChecksum(temp);
+    compareLocalChecksum();
 }
 
-void RemoteFiles::compareLocalChecksum(QString checksum) {
+void RemoteFiles::compareLocalChecksum() {
 
     QCryptographicHash hash(QCryptographicHash::Md5);
-    QStringList downloadList;
 
     QStringListIterator itter(sums);
     while (itter.hasNext()) {
@@ -45,15 +41,17 @@ void RemoteFiles::compareLocalChecksum(QString checksum) {
         QDirIterator it(homeDir + appDir, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
         while (it.hasNext()) {
             QString filePath = it.next();
-            if(!filePath.contains(".txt")) continue;
 
             QFile file(filePath);
             if (file.open(QIODevice::ReadOnly)) {
                 hash.addData(file.readAll());
                 QString md5 = QString(hash.result().toHex());
 
+                qDebug() << md5;
+
                 if(md5 == remoteFile.at(0).toLocal8Bit().constData()) {
                     flag = true;
+                    qDebug() << "match";
                 }
             }
         }
@@ -62,22 +60,38 @@ void RemoteFiles::compareLocalChecksum(QString checksum) {
         }
     }
 
-    /*
-    QStringListIterator dItter(downloadList);
-    while(dItter.hasNext()) {
-        qDebug() << QString(dItter.next());
-    }
-    */
-
-    downloadFiles(downloadList);
+    downloadFiles();
 }
 
-void RemoteFiles::downloadFiles(QStringList downloadList) {
+void RemoteFiles::downloadFiles() {
 
     QStringListIterator dItter(downloadList);
     while(dItter.hasNext()) {
         QString filename = dItter.next();
         qDebug() << "Downloading " + filename;
+        QDir directory(homeDir + appDir);
+        QFile *rFile = new QFile(filename);
+        rFile->open(QIODevice::WriteOnly);
+        NetRepl = NetAccMan.get(QNetworkRequest(QUrl("http://pliki.ls-rp.net/modpack/"+filename)));
+        connect(NetRepl, SIGNAL(finished()), this, SLOT(saveRemoteFile()));
+        break;
     }
+}
 
+void RemoteFiles::saveRemoteFile() {
+    QStringList filenameSplit = NetRepl->url().toString().split("/");
+    QString filename = filenameSplit.at(filenameSplit.length() - 1).toLocal8Bit().constData();
+    qDebug() << filename;
+
+    QDir directory(homeDir + appDir);
+    directory.setCurrent(homeDir + appDir);
+    QFile *wFile = new QFile(filename);
+    wFile->open(QIODevice::WriteOnly);
+    wFile->write(NetRepl->readAll());
+    wFile->close();
+    qDebug() << "Saved file "+filename;
+    NetRepl->close();
+
+    downloadList.removeFirst();
+    downloadFiles();
 }
