@@ -1,10 +1,8 @@
 #include "remotefiles.h"
 
-RemoteFiles::RemoteFiles(QString homeDir, QString appDir, QString appFile) {
+RemoteFiles::RemoteFiles(QString gtaDir) {
 
-    this->homeDir = homeDir;
-    this->appDir = appDir;
-    this->appFile = appFile;
+    this->gtaDir = gtaDir + "/SAMP/";
     getRemoteChecksum();
 }
 
@@ -16,7 +14,7 @@ void RemoteFiles::getRemoteChecksum() {
 
 void RemoteFiles::parseChecksum()
 {
-    QByteArray newData = NetRepl->read(2048);
+    QByteArray newData = NetRepl->readAll();
 
     QString temp = QString(newData);
     qDebug() << "Remote hash: " << temp << "\n";
@@ -39,7 +37,7 @@ void RemoteFiles::compareLocalChecksum() {
 
         bool flag = false;
 
-        QDirIterator it(homeDir + appDir, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
+        QDirIterator it(gtaDir, QDirIterator::Subdirectories | QDirIterator::FollowSymlinks);
         while (it.hasNext()) {
             QString filePath = it.next();
 
@@ -72,11 +70,11 @@ void RemoteFiles::downloadFiles() {
     while(dItter.hasNext()) {
         QString filename = dItter.next();
         qDebug() << "Downloading " + filename;
-        QDir directory(homeDir + appDir);
         QFile *rFile = new QFile(filename);
         rFile->open(QIODevice::WriteOnly);
         NetRepl = NetAccMan.get(QNetworkRequest(QUrl("http://pliki.ls-rp.net/modpack/"+filename)));
         connect(NetRepl, SIGNAL(finished()), this, SLOT(saveRemoteFile()));
+        //connect(NetRepl, SIGNAL(downloadProgress(qint64, qint64)), this, SLOT(test(qint64, qint64)));
         break;
     }
 }
@@ -86,8 +84,8 @@ void RemoteFiles::saveRemoteFile() {
     QString filename = filenameSplit.at(filenameSplit.length() - 1).toLocal8Bit().constData();
     qDebug() << filename;
 
-    QDir directory(homeDir + appDir);
-    directory.setCurrent(homeDir + appDir);
+    QDir directory(gtaDir);
+    directory.setCurrent(gtaDir);
     QFile *wFile = new QFile(filename);
     wFile->open(QIODevice::WriteOnly);
     wFile->write(NetRepl->readAll());
@@ -98,3 +96,15 @@ void RemoteFiles::saveRemoteFile() {
     downloadList.removeFirst();
     downloadFiles();
 }
+/*
+void RemoteFiles::test(qint64 bytesReceived, qint64 bytesTotal) {
+    qDebug() << bytesReceived;
+}
+*/
+
+/*
+ * The above is a test of the progress bar for the actuall, visual launcher.
+ * Remember to uncomment    connect() in RemoteFIles::downloadFiles()
+ *                          RemoteFiles::test()
+ * and                      slot definition in remotefiles.h
+ */

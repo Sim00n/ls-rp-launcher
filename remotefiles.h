@@ -23,13 +23,11 @@ class RemoteFiles: public QObject {
     QNetworkReply *NetRepl;
     QStringList downloadList;
 
-    QString homeDir;
-    QString appDir;
-    QString appFile;
+    QString gtaDir;
     QStringList sums;
 
     public:
-        RemoteFiles(QString homeDir, QString appDir, QString appFile);
+        RemoteFiles(QString gtaDir);
         void getRemoteChecksum();
         void compareLocalChecksum();
         void downloadFiles();
@@ -37,6 +35,7 @@ class RemoteFiles: public QObject {
     public slots:
         void parseChecksum();
         void saveRemoteFile();
+        //void test(qint64 bytesReceived, qint64 bytesTotal);
 
 };
 

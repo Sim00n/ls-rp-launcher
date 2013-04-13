@@ -1,12 +1,12 @@
 #include <QCoreApplication>
-#include <webfiles.h>
+#include <localfiles.h>
 #include <remotefiles.h>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    WebFiles wf;
-    RemoteFiles rf(wf.homeDir, wf.appDir, wf.appFile);
+    LocalFiles lf;
+    RemoteFiles rf(lf.c_gtaFolder);
     return a.exec();
 }

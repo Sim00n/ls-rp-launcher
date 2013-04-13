@@ -17,9 +17,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    webfiles.cpp \
-    remotefiles.cpp
+    remotefiles.cpp \
+    localfiles.cpp
 
 HEADERS += \
-    webfiles.h \
-    remotefiles.h
+    remotefiles.h \
+    localfiles.h
